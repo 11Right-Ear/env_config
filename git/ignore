@@ -1,0 +1,91 @@
+# ---------- C / C++ build output ----------
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+compile_commands.json
+*.cmake.stamp*
+_deps/
+CMakeUserPresets.json
+
+# Ninja / Make
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
+*.ninja
+Makefile
+
+# Conan / vcpkg
+conan.lock
+conanbuildinfo.*
+vcpkg_installed/
+
+# ---------- ROS 2 ----------
+install/
+log/
+build/
+*.roslog
+rclcpp.log
+*_log/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+pip-wheel-metadata/
+
+# ---------- Node / general ----------
+node_modules/
+npm-debug.log*
+
+# ---------- Editors ----------
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ---------- Build / artifacts ----------
+*.tar.gz
+*.zip
+*.bin
+*.img
+*.iso
+core
+core.*
+
+# ---------- GDB ----------
+gdb_history
+*.gdb_history
+
+# ---------- Credentials ----------
+.env
+.env.local
+*.pem
+*.key
+credentials.json
+secrets.yaml

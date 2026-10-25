@@ -1,0 +1,44 @@
+# ============================================================
+#  Yazi main configuration
+# ============================================================
+
+[mgr]
+show_hidden = true
+show_symlink = true
+show_git_dirty = true
+sort_by = "mtime"
+sort_reverse = false
+sort_dir_first = true
+linemode = "mtime"
+ratio = 1
+scrolloff = 5
+
+[preview]
+wrap = "no"
+max_width = 800
+max_height = 800
+image_filter = "none"
+
+[input]
+cursor_blink = false
+
+[opener]
+edit = [
+    { name = "nvim", run = 'edit -- "$@"', for = "text" },
+]
+extract = [
+    { name = "7z", run = '7z x -y -o$HOME/.local/share/yazi/archive "$@"', for = "archive" },
+]
+compress = [
+    { name = "tar", run = 'tar -czf archive.tar.gz "$@"', for = "archive" },
+]
+tab = [
+    { name = "tab", run = 'tab --cwd="$@"', for = "dir" },
+]
+
+[plugins]
+prepend_preview = [
+    "git",
+    "zip",
+    "ya pkg yazi-plugin-previewers",
+]

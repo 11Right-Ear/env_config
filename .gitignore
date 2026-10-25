@@ -1,0 +1,9 @@
+# Ignore anything that is not part of the dotfiles
+dl/
+*.log
+.oh-my-zsh/
+.local/share/nvim/lazy/
+.local/state/nvim/
+.local/state/zsh/
+.config/nvim/lazy-lock.json
+.cache/

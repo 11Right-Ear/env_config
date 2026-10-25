@@ -1,0 +1,69 @@
+# ============================================================
+#  Yazi keybindings
+# ============================================================
+
+[manager]
+# ---- Navigation ----
+h = "cd .."
+l = "cd --interactive"
+g = "cd --interactive"
+H = "cd -"
+L = "cd --parent"
+
+# ---- Open / edit ----
+o = "open"
+O = "open --hover"
+e = "edit"
+E = "edit --await"
+w = "open --cwd"
+y = "shell --block 'exec $EDITOR $@' --"
+
+# ---- Tabs ----
+t = "tab --current"
+T = "tab --current --cwd"
+n = "tab --next"
+P = "tab --prev"
+"]" = "tab --close"
+
+# ---- Search ----
+"/" = "search --via=filter"
+N = "search --via=filter --next"
+M = "search --via=filter --prev"
+f = "search --via=filter"
+F = "search --filter-smart"
+"," = "search --filter-smart"
+"." = "escape"
+
+# ---- Goto ----
+"g," = "seek --to=0"
+"g;" = "seek --to=$"
+gg = "seek --to=0"
+G = "seek --to=-1"
+
+# ---- Visibility toggles ----
+m = "toggle --state=show_hidden"
+"`" = "toggle --state=show_symlink"
+"=" = "toggle --state=show_git_dirty"
+
+# ---- Filesystem operations ----
+d = "remove --dir"
+x = "remove"
+X = "remove --permanent"
+c = "copy --smart"
+p = "paste --overwrite"
+r = "paste --raw --overwrite"
+
+# ---- Clipboard ----
+C = "copy --clipboard"
+Y = "copy --clipboard --raw"
+
+# ---- Misc ----
+"+" = "toggle --state=hidden"
+"~" = "cd --interactive"
+s = "shell"
+S = "shell --block"
+z = "quit"
+Z = "quit --state"
+
+# ---- Help ----
+"?" = "help"

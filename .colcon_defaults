@@ -1,0 +1,6 @@
+build:
+  symlink-install: true
+  parallel-workers: 2
+  event-handlers:
+    console_direct:
+      enabled: true

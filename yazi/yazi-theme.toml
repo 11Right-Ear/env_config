@@ -1,0 +1,245 @@
+# ============================================================
+#  Yazi theme — Catppuccin Mocha
+# ============================================================
+
+[main]
+name = "bg"
+
+[marker]
+name = "bg"
+
+[help]
+name = "bg"
+
+[keys]
+name = "special"
+
+[header]
+name = "blue"
+
+[status]
+name = "fg"
+
+[status_line]
+name = "fg"
+
+[status_empty]
+name = "bg"
+
+[status_border]
+name = "border"
+
+[scrollbar]
+name = "scrollbar"
+
+[scrollbar_thumb]
+name = "scrollbar_thumb"
+
+[preview]
+name = "preview"
+
+[preview_border]
+name = "preview_border"
+
+[preview_title]
+name = "blue"
+
+[list]
+name = "fg"
+
+[list_border]
+name = "border"
+
+[list_title]
+name = "blue"
+
+[list_hover]
+name = "bg"
+
+[list_hovered]
+name = "cyan"
+
+[directory]
+name = "blue"
+
+[file]
+name = "fg"
+
+[extension]
+name = "green"
+
+[symlink]
+name = "magenta"
+
+[orphan]
+name = "red"
+
+[executing]
+name = "orange"
+
+[search]
+name = "yellow"
+
+[copied]
+name = "green"
+
+[cursor]
+name = "cursor"
+
+[cursor_line]
+name = "cursor_line"
+
+[cursor_line_number]
+name = "cursor_line_number"
+
+[selected]
+name = "selected"
+
+[separator]
+name = "separator"
+
+[grid]
+name = "grid"
+
+[match]
+name = "orange"
+
+[tag]
+name = "special"
+
+[help_key]
+name = "cyan"
+
+[help_desc]
+name = "fg"
+
+[symlink_path]
+name = "magenta"
+
+[char]
+name = "char"
+
+[url]
+name = "url"
+
+[ip]
+name = "ip"
+
+[macro]
+name = "macro"
+
+[date]
+name = "date"
+
+[md]
+name = "md"
+
+[quote]
+name = "quote"
+
+[strong]
+name = "strong"
+
+[italic]
+name = "italic"
+
+[link]
+name = "link"
+
+[function]
+name = "function"
+
+[variable]
+name = "variable"
+
+[comment]
+name = "comment"
+
+[constant]
+name = "constant"
+
+[string]
+name = "string"
+
+[number]
+name = "number"
+
+[boolean]
+name = "boolean"
+
+[keyword]
+name = "keyword"
+
+[operator]
+name = "operator"
+
+[punctuation]
+name = "punctuation"
+
+[bracket]
+name = "bracket"
+
+[module]
+name = "module"
+
+[property]
+name = "property"
+
+[namespace]
+name = "namespace"
+
+[label]
+name = "label"
+
+[error]
+name = "error"
+
+[palettes.catppuccin-mocha]
+bg = "#1e1e2e"
+fg = "#cdd6f4"
+muted = "#6c7086"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+orange = "#fab387"
+cyan = "#94e2d5"
+special = "#f5c2e7"
+preview = "#181825"
+preview_border = "#313244"
+scrollbar = "#45475a"
+scrollbar_thumb = "#585b70"
+border = "#313244"
+grid = "#313244"
+cursor = "#f5e0dc"
+cursor_line = "#313244"
+cursor_line_number = "#f5e0dc"
+selected = "#f38ba8"
+separator = "#585b70"
+char = "#94e2d5"
+url = "#f38ba8"
+ip = "#94e2d5"
+macro = "#f5c2e7"
+date = "#fab387"
+md = "#f9e2af"
+quote = "#a6e3a1"
+strong = "#f38ba8"
+italic = "#f5c2e7"
+link = "#89b4fa"
+function = "#89b4fa"
+variable = "#eba0ac"
+comment = "#6c7086"
+constant = "#fab387"
+string = "#a6e3a1"
+number = "#fab387"
+boolean = "#fab387"
+keyword = "#cba6f7"
+operator = "#89d4dd"
+punctuation = "#89d4dd"
+bracket = "#94e2d5"
+module = "#f9e2af"
+property = "#eba0ac"
+namespace = "#89b4fa"
+label = "#f9e2af"
+error = "#f38ba8"

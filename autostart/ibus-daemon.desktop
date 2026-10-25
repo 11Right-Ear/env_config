@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=IBus Daemon
+Comment=Start the input method framework for Chinese input
+Exec=/usr/bin/ibus-daemon --daemonize --xim --replace
+Icon=input-method
+Terminal=false
+Categories=GNOME;GTK;Utility;
+X-GNOME-Autostart-Phase=Applications
+X-GNOME-Autostart-Notify=true
+OnlyShowIn=GNOME;Unity;
