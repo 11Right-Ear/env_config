@@ -33,9 +33,13 @@ fi
 
 # ---- Tabby terminal ----
 if [ -d "$DOTFILES/tabby" ]; then
-    mkdir -p "$HOME_DIR/.config/tabby"
+    mkdir -p "$HOME_DIR/.config/tabby" "$HOME_DIR/.local/bin"
     cp "$DOTFILES/tabby/config.yaml" "$HOME_DIR/.config/tabby/config.yaml"
-    echo "  ✓ tabby config"
+    # Launch wrapper: Tabby is an X11 app and needs the XWayland bridge
+    # on a Wayland session, otherwise it dies with "Error: Bad window".
+    cp "$DOTFILES/tabby/launch_tabby.sh" "$HOME_DIR/.local/bin/launch-tabby"
+    chmod +x "$HOME_DIR/.local/bin/launch-tabby"
+    echo "  ✓ tabby config + launch script"
 fi
 
 # ---- Git ----

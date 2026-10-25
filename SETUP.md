@@ -47,8 +47,24 @@
 | Powerlevel10k | master | `~/.oh-my-zsh/custom/themes/powerlevel10k` |
 | clangd | 14.0.0 | `/usr/bin/clangd` |
 | ibus-libpinyin | 1.12.1 | `/usr/libexec/ibus-engine-libpinyin` |
+| Tabby | 1.0.238 | `/opt/Tabby/tabby` — **default terminal** |
 | Navigation2 / MoveIt 2 | Humble | apt binaries **and** source clones |
 | ccache, ninja, fzf, rg, fd, bat, tmux, btop, jq | latest | apt |
+| xdotool, xclip, gnome-screenshot, imagemagick | latest | apt (GUI verification) |
+
+### Theme consistency
+
+All three user-facing tools share the **Nord Polar Night** palette
+(background `#2e3440`, foreground `#d8dee9`):
+
+| Tool | Where the colours live |
+|---|---|
+| Yazi | `~/.config/yazi/theme.toml` (0.4.2 schema) |
+| Tabby | `~/.config/tabby/config.yaml` → `terminal.colorScheme` |
+| zsh prompt | `~/.p10k.zsh` → Powerlevel10k |
+
+The terminal font is `Noto Sans Mono CJK SC`, so Chinese text renders
+correctly in every terminal.
 
 ### Directory layout produced
 
@@ -73,10 +89,12 @@
 │   └── restore.sh
 ├── .config/
 │   ├── nvim/init.lua
-│   ├── yazi/*.toml
+│   ├── yazi/{yazi,keymap,theme}.toml
+│   ├── tabby/config.yaml
 │   ├── git/{ignore,attributes}
 │   └── autostart/ibus-daemon.desktop
 ├── .gitconfig              # global git config + aliases
+├── .p10k.zsh               # Powerlevel10k configuration
 ├── .clang-format
 ├── .colcon_defaults
 ├── .oh-my-zsh/
@@ -186,8 +204,10 @@ sudo apt-get install -y \
     ros-humble-rosbag2-storage-mcap \
     ros-humble-rosbridge-suite
 
-# --- GUI automation helpers (optional, for testing GUIs) ---
-sudo apt-get install -y xdotool xclip x11-utils
+# --- GUI automation / verification helpers ---
+# xdotool  - drive and inspect windows (also useful for testing GUIs)
+# gnome-screenshot + imagemagick - capture the screen and verify colours
+sudo apt-get install -y xdotool xclip x11-utils gnome-screenshot imagemagick
 ```
 
 ### Post-install fixups
@@ -400,6 +420,89 @@ The `[opener]` table also uses `run` (not `use`) and `for` (not `desc`).
 
 Expect the version banner and **no** "Failed to parse the [open] or [opener]
 section" error.
+
+### Verify the theme actually renders
+
+Parsing OK does **not** mean the theme is applied — a wrongly-named file or
+an unknown key is silently ignored (or refused outright). Verify visually:
+
+```bash
+# 1. Launch yazi in a terminal on the current display
+DISPLAY=:0 gnome-terminal --geometry=110x32 -e "yazi ~/ros2_ws/src/robot_arm_core" &
+
+# 2. Capture the screen
+sleep 8
+DISPLAY=:0 gnome-screenshot -f /tmp/yazi.png
+
+# 3. Count the Nord pixels in the captured image
+python3 - <<'PY'
+import struct, zlib
+from collections import Counter
+
+def read_png(path):
+    data = open(path, 'rb').read()
+    pos, idat, w, h, ct = 8, b'', None, None, None
+    while pos < len(data):
+        ln = struct.unpack('>I', data[pos:pos+4])[0]
+        typ = data[pos+4:pos+8]
+        chunk = data[pos+8:pos+8+ln]
+        if typ == b'IHDR':
+            w, h, bd, ct = struct.unpack('>IIBB', chunk[:10])
+        elif typ == b'IDAT':
+            idat += chunk
+        pos += 12 + ln
+    raw = zlib.decompress(idat)
+    ch = {0:1, 2:3, 3:1, 4:2, 6:4}[ct]
+    stride = w * ch
+    out, prev, p = bytearray(h*stride), bytearray(stride), 0
+    for y in range(h):
+        f = raw[p]; p += 1
+        line = bytearray(raw[p:p+stride]); p += stride
+        if f == 1:
+            for i in range(ch, stride): line[i] = (line[i]+line[i-ch]) & 255
+        elif f == 2:
+            for i in range(stride): line[i] = (line[i]+prev[i]) & 255
+        elif f == 3:
+            for i in range(stride):
+                a = line[i-ch] if i >= ch else 0
+                line[i] = (line[i]+((a+prev[i]) >> 1)) & 255
+        elif f == 4:
+            for i in range(stride):
+                a = line[i-ch] if i >= ch else 0
+                b = prev[i]; c = prev[i-ch] if i >= ch else 0
+                pp = a+b-c; pa, pb, pc = abs(pp-a), abs(pp-b), abs(pp-c)
+                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i]+pr) & 255
+        out[y*stride:(y+1)*stride] = line; prev = line
+    return w, h, ch, bytes(out)
+
+w, h, ch, px = read_png('/tmp/yazi.png')
+cnt = Counter()
+for y in range(160, 700, 2):
+    for x in range(285, 1065, 2):
+        i = (y*w + x) * ch
+        cnt[tuple(px[i:i+3])] += 1
+tot = sum(cnt.values())
+nord = {
+    (0x2e,0x34,0x40): 'Polar Night  bg',
+    (0xd8,0xde,0xe9): 'Snow Storm   fg',
+    (0x88,0xc0,0xd0): 'Frost cyan',
+    (0x81,0xa1,0xc1): 'Frost blue',
+    (0x4c,0x56,0x6a): 'Muted grey',
+}
+found = 0
+for rgb, name in nord.items():
+    c = cnt.get(rgb, 0)
+    if c:
+        found += 1
+        print(f"  OK {name:<18} #{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}  {c*100//tot}%")
+print(f"{found}/{len(nord)} Nord colours detected")
+PY
+```
+
+Expected: the Nord background `#2e3440` should dominate (roughly 80 % of
+the panel). If nothing matches, the theme file is not being read at all —
+check the **file name** first (see Pitfall P13).
 
 ---
 
@@ -994,6 +1097,19 @@ echo "[ CHINESE INPUT ]"
 printf "  %-16s %s\n" "engine" "$(ibus engine)"
 printf "  %-16s %s\n" "CJK fonts" "$(fc-list :lang=zh | wc -l)"
 
+echo "[ PROMPT / THEME ]"
+printf "  %-16s %s\n" "zsh theme" "$(zsh -i -c 'echo $ZSH_THEME' 2>/dev/null | tail -1)"
+printf "  %-16s %s\n" "p10k segments" "$(zsh -i -c 'echo ${#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS}' 2>/dev/null | tail -1)"
+printf "  %-16s " "yazi config"
+(~/bin/yazi --debug >/dev/null 2>&1) && echo "✓ parses" || echo "✗ rejected"
+printf "  %-16s %s\n" "yazi files" "$(ls ~/.config/yazi/ 2>/dev/null | tr '\n' ' ')"
+printf "  %-16s %s\n" "yazi version" "$(~/bin/yazi --version 2>&1 | head -1)"
+
+echo "[ TABBY ]"
+printf "  %-16s %s\n" "installed" "$(command -v tabby >/dev/null && tabby --version 2>&1 | head -1 || echo 'not installed')"
+printf "  %-16s %s\n" "default term" "$(gsettings get org.gnome.desktop.default-applications.terminal exec 2>/dev/null)"
+printf "  %-16s %s\n" "config" "$([ -f ~/.config/tabby/config.yaml ] && echo '✓ present' || echo '✗')"
+
 echo "[ GIT ]"
 printf "  %-16s %s\n" "user" "$(git config --global user.name)"
 printf "  %-16s %s\n" "ssh key" "$([ -f ~/.ssh/id_ed25519 ] && echo ✓ || echo ✗)"
@@ -1148,7 +1264,34 @@ Verify the theme loads:
 yazi --debug 2>&1 | head -10   # must not print "Failed to parse your theme.toml"
 ```
 
-### P14 — `tree-sitter-cli` not installable
+### P14 — Tabby fails with `Error: Bad window`
+
+Tabby is an Electron app that talks to X11 directly. On a **Wayland**
+session it must be routed through XWayland:
+
+```bash
+XDG_SESSION_TYPE=x11 GDK_BACKEND=x11 unset WAYLAND_DISPLAY \
+  /opt/Tabby/tabby --no-sandbox --ozone-platform=x11
+```
+
+`Bad atom` and `Add _NET_RESTACK_WINDOW to kAtomsToCache` in the log are
+harmless X11 warnings, not failures.
+
+### P15 — Tabby's colour scheme stays dark / does not change
+
+`terminal.colorScheme` is a **full colour object**, not a scheme name.
+Tabby matches it against its built-in schemes by comparing the actual
+colour values, so `colorScheme: 'Nord'` silently does nothing.
+
+The config must live in `~/.config/tabby/config.yaml`, **not**
+`~/.tabby/config.yaml`.
+
+### P16 — Tabby keeps showing the welcome tab
+
+`enableWelcomeTab: false` only takes effect if the config file is in the
+right place (`~/.config/tabby/config.yaml`) and Tabby is restarted.
+
+### P17 — `tree-sitter-cli` not installable
 
 Not in Ubuntu 22.04's archive. Skip it — the bundled Neovim treesitter
 parsers are enough.
@@ -2785,7 +2928,39 @@ If you are an AI agent asked to set up this environment:
 9. Run the [Final verification](#13-final-verification) block and report the
    result honestly, including any ✗.
 
+### Version-pinned parts — do not "upgrade" these
+
+Two configurations are tied to an exact program version and will **silently
+stop working** if the program is upgraded:
+
+| Program | Pinned to | If upgraded |
+|---|---|---|
+| Yazi | **0.4.2** | `theme.toml` and `keymap.toml` must be rewritten for the 25.x schema (`[main]`/`[file]` flat format, `[palettes.NAME]`, and the file names `yazi-theme.toml`/`yazi-keymap.toml`). |
+| Tabby | 1.0.238 | `terminal.colorScheme` object shape may change. |
+
+Check the version before editing either config.
+
+### Verifying that a theme actually applied
+
+"Config parses without error" is **not** proof that a theme is in effect —
+a wrong file name is ignored silently. To verify visually, use the
+screenshot-and-count-pixels procedure in
+[Phase 3](#5-phase-3--yazi) (requires `gnome-screenshot` and
+`imagemagick`, installed in Phase 1).
+
+### Known behaviours that are *not* bugs
+
+* `Bad atom` / `Add _NET_RESTACK_WINDOW to kAtomsToCache` in the Tabby log —
+  harmless X11 warnings.
+* `error: Bad window` when Tabby is started from a Wayland session without
+  the XWayland environment — use the launch script from
+  [Phase 12](#12-tabby-terminal-optional).
+* `colcon` printing a warning about `event-handlers` — it wants a **list**,
+  e.g. `- console_direct+`, not a nested mapping.
+
 ---
 
 *Created on a working Ubuntu 22.04.5 / ROS 2 Humble machine. Every command
 and pitfall in this document was encountered and solved during that setup.*
+*Extended with the Powerlevel10k, Nord theme and Tabby work — all verified
+by rendering and inspecting the actual pixels on screen.*
