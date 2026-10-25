@@ -27,6 +27,7 @@
 13. [Final verification](#13-final-verification)
 14. [Known pitfalls](#14-known-pitfalls)
 15. [Appendix — file manifests](#15-appendix--file-manifests)
+16. [Daily use reference](#16-daily-use-reference)
 
 ---
 
@@ -2903,6 +2904,203 @@ int main(int argc, char ** argv)
   return 0;
 }
 ```
+
+---
+
+## 16. Daily use reference
+# ============================================================
+#  Daily use reference
+#  (content merged from the former standalone README.md)
+# ============================================================
+
+## Build and run the template package
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/ros2_ws
+colcon build --symlink-install --packages-select robot_arm_core
+source install/setup.bash
+ros2 run robot_arm_core arm_node
+```
+
+Solve IK for a different target:
+
+```bash
+ros2 run robot_arm_core arm_node --ros-args -p target_x:=0.55 -p target_y:=0.30
+```
+
+## Useful aliases (zsh)
+
+| Alias | Meaning |
+|---|---|
+| `colb` | `colcon build --symlink-install` |
+| `colbt <pkg>` | build a single package |
+| `coltest` | `colcon test` with console output |
+| `source_ws` | `source ~/ros2_ws/install/setup.zsh` |
+| `ws` / `wssrc` | `cd ~/ros2_ws` / `cd ~/ros2_ws/src` |
+| `rosnodes` / `rostopics` / `rosservices` | list nodes/topics/services |
+| `follow <topic>` | `ros2 topic echo <topic>` |
+| `record <name> [topics…]` | record a rosbag |
+| `findnode <name>` | grep node list |
+| `which_ros` | show distro, domain id, workspace |
+| `ccmake` / `cmakeb` | configure / build a CMake project |
+| `cgdb` | `gdb --args` |
+| `buildpkg <pkg>` | build one ROS package and source it |
+| `y` | open yazi, then `cd` into the directory you exited on |
+
+## Kinematics API (`robot_arm_core`)
+
+```cpp
+#include "robot_arm_core/kinematics.hpp"
+
+robot_arm_core::PlanarArmKinematics arm({0.30, 0.25, 0.15});
+
+robot_arm_core::JointArray q{};
+if (arm.inverse({0.55, 0.30}, q)) {
+  // q now holds a solution; arm.forward(q) reproduces the target
+}
+```
+
+- `forward()` — joint angles → end-effector position
+- `inverse()` — damped Newton-Raphson on the position Jacobian;
+  converges to ~1e-14 for every reachable target
+- `inverseWithFixedQ3()` — closed-form 2-link solve with joint 3 held fixed
+- `jacobian()` — the 2×3 position Jacobian
+- `is_reachable()`, `max_reach()`, `min_reach()`
+
+## Navigation2 and MoveIt 2
+
+Both are available **two ways** — use the binaries for running, and the
+cloned source for reading/patching.
+
+### Binaries
+
+```bash
+ros2 launch nav2_bringup bringup_launch.py \
+  use_sim_time:=true \
+  map:=/home/right-ear/maps/my_map.yaml
+```
+
+### Source (already cloned)
+
+```bash
+cd ~/ros2_ws/src/navigation2 && git log --oneline -5
+cd ~/ros2_ws/src/moveit2     && git log --oneline -5
+```
+
+To build the source yourself (slow — 2 cores, ~1-2 h):
+
+```bash
+cd ~/ros2_ws
+colcon build --symlink-install --packages-select nav2_bringup
+```
+
+### MoveIt with your own arm
+
+MoveIt needs a MoveIt configuration package. Generate one with the
+MoveIt Setup Assistant, or start from a template:
+
+```bash
+ros2 launch moveit_setup_assistant setup_assistant.launch.py
+```
+
+Typical layout for the config package:
+
+```
+robot_arm_moveit_config/
+├── config/
+│   ├── robot_arm.urdf.xacro
+│   ├── joint_limits.yaml
+│   ├── kinematics.yaml
+│   ├── moveit_controllers.yaml
+│   └── pilz_cartesian_limits.yaml
+├── launch/
+│   ├── demo.launch.py
+│   ├── move_group.launch.py
+│   └── rsp.launch.py
+└── .rviz/
+```
+
+## Standalone C++ / CMake
+
+Template project at `~/dev/cpp-projects/robot_arm_planner`:
+
+```bash
+cd ~/dev/cpp-projects/robot_arm_planner
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build -j$(nproc)
+./build/unit_tests
+./build/robot_arm_planner --x 0.55 --y 0.3 --trajectory
+```
+
+`CMakeLists.txt` is preset for C++17, `RelWithDebInfo`, debug symbols for
+GDB, `compile_commands.json` for clangd, and a wide warning set
+(`-Wall -Wextra -Wpedantic -Wshadow …`).
+
+## GDB
+
+```bash
+# Debug a built binary
+gdb --args ./build/robot_arm_planner
+
+# Inside GDB
+(gdb) break main
+(gdb) run
+(gdb) next / step / continue
+(gdb) print some_variable
+(gdb) bt                    # backtrace
+```
+
+Prefer a debugger inside the editor? nvim-dap bindings are set up in the
+Neovim config: `<leader>db` breakpoint · `<leader>dc` continue ·
+`<leader>ds` step over · `<leader>di` step into · `<leader>dq` quit.
+
+## Chinese input
+
+| | |
+|---|---|
+| Engine | `ibus-libpinyin` 1.12.1 (Intelligent Pinyin) |
+| Switch key | `<Super>space` or `XF86Keyboard` |
+| Current engine | `libpinyin` |
+| Fonts | 31 CJK fonts; terminal set to Noto Sans Mono CJK SC |
+| Autostart | `~/.config/autostart/ibus-daemon.desktop` |
+
+Type `nihao` → pick 你好 with `1`–`5`, `space`, or `Enter`.
+
+Switch engines from the shell:
+
+```bash
+ibus engine libpinyin     # switch to Chinese
+ibus engine xkb:us::eng  # back to English
+```
+
+Preferences (Shuangpin layout, candidate count): `ibus-setup-libpinyin`.
+
+## Housekeeping notes
+
+- **`ccache`** is enabled via `~/.colcon_defaults` — rebuilds are fast.
+- **`MAKEFLAGS=-j$(nproc)`** and `CMAKE_BUILD_PARALLEL_LEVEL` are exported
+  in `.zshrc` (2 cores on this VM).
+- **`ROS_LOCALHOST_ONLY=1`** is set, so ROS traffic does not leave the
+  machine. Set `ROS_DOMAIN_ID` to talk to other hosts on your LAN.
+
+## Troubleshooting
+
+**`ros2 run` says "No executable found"** — the executable must be
+installed into `lib/<package_name>/`, not `bin/`. Check the
+`install(TARGETS … DESTINATION lib/${PROJECT_NAME})` line in `CMakeLists.txt`.
+
+**GitHub clones fail with 401** — GitHub rate-limits anonymous git access.
+Use the SSH key (already registered), or the codeload tarball endpoint.
+
+**Yazi fails with `GLIBC_2.39 not found`** — you installed a build too new
+for Ubuntu 22.04. Use v0.4.2.
+
+**`colcon build` is slow** — normal on 2 cores. Build one package at a
+time with `--packages-select`.
+
+**Theme looks wrong in Yazi** — check the file name: Yazi 0.4.2 needs
+`theme.toml`, not `yazi-theme.toml` (the latter is ignored silently).
 
 ---
 
