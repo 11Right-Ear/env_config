@@ -53,6 +53,24 @@
 | ccache, ninja, fzf, rg, fd, bat, tmux, btop, jq | latest | apt |
 | xdotool, xclip, gnome-screenshot, imagemagick | latest | apt (GUI verification) |
 
+### Source repositories
+
+The project's own code lives in the GitHub account `11Right-Ear`, separate
+from this dotfiles repo:
+
+| Repository | Contents |
+|---|---|
+| `11Right-Ear/env_config` | This configuration set and `SETUP.md` |
+| `11Right-Ear/ros2_ws` | The ROS 2 workspace — `robot_arm_core` (Jacobian IK solver) |
+| `11Right-Ear/cpp-projects` | Standalone C++/CMake — `robot_arm_planner` (89 unit tests) |
+
+Clone them into place:
+
+```bash
+git clone git@github.com:11Right-Ear/ros2_ws.git ~/ros2_ws
+git clone git@github.com:11Right-Ear/cpp-projects.git ~/dev/cpp-projects
+```
+
 ### Theme consistency
 
 All three user-facing tools share the **Nord Polar Night** palette
@@ -2937,6 +2955,15 @@ int main(int argc, char ** argv)
 
 ## Build and run the template package
 
+The workspace is cloned from GitHub (see
+[Source repositories](#source-repositories)):
+
+```bash
+git clone git@github.com:11Right-Ear/ros2_ws.git ~/ros2_ws
+```
+
+Then:
+
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/ros2_ws
@@ -3044,6 +3071,13 @@ robot_arm_moveit_config/
 ```
 
 ## Standalone C++ / CMake
+
+Clone the project (see
+[Source repositories](#source-repositories)):
+
+```bash
+git clone git@github.com:11Right-Ear/cpp-projects.git ~/dev/cpp-projects
+```
 
 Template project at `~/dev/cpp-projects/robot_arm_planner`:
 

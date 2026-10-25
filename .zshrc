@@ -138,9 +138,9 @@ alias rosdep="rosdep"
 alias colb="colcon build --symlink-install"
 alias colbt="colcon build --symlink-install --packages-select"
 alias coltest="colcon test --event-handlers console_direct+"
-alias source_ws="source ~/ros2_ws/install/setup.zsh"
-alias ws="cd ~/ros2_ws"
-alias wssrc="cd ~/ros2_ws/src"
+alias source_ws="[ -f ~/ros2_ws/install/setup.zsh ] && source ~/ros2_ws/install/setup.zsh"
+alias ws="[ -d ~/ros2_ws ] && cd ~/ros2_ws || echo 'no workspace (see SETUP.md to recreate)'"
+alias wssrc="[ -d ~/ros2_ws/src ] && cd ~/ros2_ws/src || echo 'no workspace'"
 
 # ---- Build & debug ----
 alias ccmake="cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
@@ -173,14 +173,14 @@ buildpkg() {
     fi
     colcon build --symlink-install --packages-select "$1" "$@" && \
         echo "--- sourcing ---" && \
-        source ~/ros2_ws/install/setup.zsh && \
+        [ -f ~/ros2_ws/install/setup.zsh ] && source ~/ros2_ws/install/setup.zsh && \
         echo "done: $1"
 }
 
 # Find and source the ROS setup file
 use_ros() {
     source /opt/ros/humble/setup.zsh
-    [ -d ~/ros2_ws/install ] && source ~/ros2_ws/install/setup.zsh
+    [ -f ~/ros2_ws/install/setup.zsh ] && source ~/ros2_ws/install/setup.zsh
     echo "ROS 2 Humble sourced."
 }
 

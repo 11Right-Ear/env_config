@@ -61,7 +61,20 @@ Check the program version before editing either config.
 
 ## The other repositories
 
+These are **not** part of this repo — they live in the GitHub account
+`11Right-Ear` and are cloned separately:
+
 | Repository | Contents |
 |---|---|
-| `~/ros2_ws` | The ROS 2 workspace — `robot_arm_core` package with the IK solver. Vendored upstream repos (navigation2, moveit2) are gitignored so commits stay clean. |
-| `~/dev/cpp-projects` | Standalone C++/CMake projects — `robot_arm_planner` with 89 unit tests. |
+| `11Right-Ear/ros2_ws` | The ROS 2 workspace — `robot_arm_core` package with the IK solver. Vendored upstream repos (navigation2, moveit2) are gitignored so commits stay clean. |
+| `11Right-Ear/cpp-projects` | Standalone C++/CMake projects — `robot_arm_planner` with 89 unit tests. |
+
+Recreate the workspace locally with:
+
+```bash
+git clone git@github.com:11Right-Ear/ros2_ws.git ~/ros2_ws
+git clone git@github.com:11Right-Ear/cpp-projects.git ~/dev/cpp-projects
+```
+
+The `ws`, `wssrc` and `source_ws` shell aliases degrade gracefully when the
+workspace is absent.
