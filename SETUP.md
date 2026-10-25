@@ -43,6 +43,7 @@
 | Yazi | 0.4.2 | `~/bin/yazi`, `~/bin/ya` |
 | zsh | 5.8.1 | `/usr/bin/zsh` — **default login shell** |
 | oh-my-zsh | master | `~/.oh-my-zsh` + 4 plugins |
+| Powerlevel10k | master | `~/.oh-my-zsh/custom/themes/powerlevel10k` |
 | clangd | 14.0.0 | `/usr/bin/clangd` |
 | ibus-libpinyin | 1.12.1 | `/usr/libexec/ibus-engine-libpinyin` |
 | Navigation2 / MoveIt 2 | Humble | apt binaries **and** source clones |
@@ -459,6 +460,73 @@ for d in ~/.oh-my-zsh/custom/plugins/*/; do
   ls "$d" | grep -q '\.plugin\.zsh' && echo OK || echo "MISSING .plugin.zsh"
 done
 ```
+
+### Powerlevel10k (prompt theme)
+
+```bash
+mkdir -p ~/.oh-my-zsh/custom/themes && cd ~/.oh-my-zsh/custom/themes
+for i in 1 2 3 4 5; do
+  rm -rf powerlevel10k
+  if curl -fsL --connect-timeout 15 --max-time 120 -o p10k.tgz \
+       "https://codeload.github.com/romkatv/powerlevel10k/tar.gz/refs/heads/master" \
+     && tar xzf p10k.tgz 2>/dev/null; then
+    mv powerlevel10k-master powerlevel10k && rm -f p10k.tgz && break
+  fi
+  sleep 5
+done
+```
+
+Three things are required — **all three** — or the theme silently fails:
+
+1. **A symlink** so oh-my-zsh can find it. oh-my-zsh looks for a *file*
+   `$ZSH_CUSTOM/themes/<name>.zsh-theme`, but p10k is a *directory*:
+
+   ```bash
+   cd ~/.oh-my-zsh/custom/themes
+   ln -sfn powerlevel10k/powerlevel10k.zsh-theme powerlevel10k.zsh-theme
+   ```
+
+2. **Source the theme before oh-my-zsh**, because p10k overrides `ZSH_THEME`:
+
+   ```zsh
+   P10K_DIR="$ZSH/custom/themes/powerlevel10k"
+   if [ -d "$P10K_DIR" ]; then
+       source "$P10K_DIR/powerlevel10k.zsh-theme"
+   fi
+   ```
+
+3. **Source `~/.p10k.zsh` explicitly.** Without this line p10k launches its
+   interactive setup wizard instead of applying the configuration:
+
+   ```zsh
+   if [ -f "$HOME/.p10k.zsh" ]; then
+       source "$HOME/.p10k.zsh"
+   fi
+   ```
+
+Create the config from a shipped preset, then add custom segments:
+
+```bash
+cp ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-classic.zsh ~/.p10k.zsh
+```
+
+> **Custom p10k segments must be named `prompt_<name>`** (not `<name>`),
+> must be **defined inside the config file's `() { ... }` wrapper** so they
+> are global, and must use the `p10k segment -f <colour> -i <icon> -t <text>`
+> API. The text is passed **pre-expanded** — `-t "$ROS_DISTRO"`, not
+> `-t '%{ROS_DISTRO}'` (which renders the literal string).
+
+See the `~/.p10k.zsh` entry in the [Appendix](#14-appendix--file-manifests)
+for a ready-to-use configuration with ROS 2 and CMake segments.
+
+**Verify:**
+
+```bash
+zsh -i -c 'print -l $POWERLEVEL9K_LEFT_PROMPT_ELEMENTS'
+```
+
+Expect the segment list to include `ros_distro`, `ros_workspace` and
+`cmake_project`.
 
 ### `.zshrc`
 
@@ -940,7 +1008,32 @@ Ubuntu names them `batcat` and `fdfind`. Symlink them (see Phase 1).
 
 Use `REAL_HOME="/home/${SUDO_USER:-$(whoami)}"`.
 
-### P12 — `tree-sitter-cli` not installable
+### P12 — Powerlevel10k loads but shows no custom segments
+
+Three separate requirements must all be met. Check them in order:
+
+1. `~/.oh-my-zsh/custom/themes/powerlevel10k.zsh-theme` must exist as a
+   **symlink** to `powerlevel10k/powerlevel10k.zsh-theme`. Without it
+   oh-my-zsh prints `[oh-my-zsh] theme 'powerlevel10k' not found`.
+2. `~/.zshrc` must `source ~/.p10k.zsh` explicitly, otherwise p10k runs its
+   interactive wizard instead of loading the config.
+3. Custom segment functions must be named `prompt_<name>`, be defined
+   **inside** the config file's `() { ... }` wrapper, and pass text
+   **pre-expanded** (`-t "$ROS_DISTRO"`, not `-t '%{ROS_DISTRO}'`).
+
+Diagnose with:
+
+```bash
+zsh -i -c 'print -l $POWERLEVEL9K_LEFT_PROMPT_ELEMENTS'
+```
+
+An empty list means the config file was never sourced.
+
+> Note: p10k refuses to load its config in a non-TTY session, so testing
+> with `zsh -i -c '...'` over a pipe can show an empty segment list even
+> when the config is fine. Test in a real terminal.
+
+### P13 — `tree-sitter-cli` not installable
 
 Not in Ubuntu 22.04's archive. Skip it — the bundled Neovim treesitter
 parsers are enough.
@@ -1999,6 +2092,73 @@ bindkey '^{/^' backward-kill-word
 
 # ---- User binaries (nvim, yazi) ----
 export PATH="$HOME/bin:$PATH"
+```
+
+### `~/.p10k.zsh`
+
+Powerlevel10k configuration. The file ships with p10k as
+`config/p10k-classic.zsh`; this version adds three custom segments for
+C++/ROS 2 work.
+
+The custom segments live **inside** the config file's `() { ... }` wrapper —
+that is what makes them global. Names must be `prompt_<name>`.
+
+```zsh
+  # ============================================================
+  #  Custom segments for C++ / ROS 2 development
+  # ============================================================
+
+  # ROS 2 distro — shown whenever a ROS environment is active.
+  function prompt_ros_distro() {
+    if [[ -n ${ROS_DISTRO-} ]]; then
+      p10k segment -f 76 -i '🌿' -t "$ROS_DISTRO"
+    fi
+  }
+
+  # ROS 2 workspace — detected by looking for a src/ directory that
+  # contains ROS packages (a package.xml). $ROS_WS is only set during a
+  # colcon build, so path detection is used instead.
+  function prompt_ros_workspace() {
+    local dir=$PWD
+    while [[ $dir != "/" ]]; do
+      if [[ -d $dir/src ]]; then
+        # Only treat it as a ROS workspace if it holds real ROS packages.
+        local pkg=( $dir/src/*/package.xml(N) )
+        if (( $#pkg )); then
+          p10k segment -f 178 -i 'ws' -t 'ros2'
+          return
+        fi
+      fi
+      dir=${dir:h}
+    done
+  }
+
+  # CMake project — shown when the current directory holds a CMakeLists.txt.
+  function prompt_cmake_project() {
+    if [[ -f CMakeLists.txt ]]; then
+      p10k segment -f 44 -i 'cmake' -t 'cmake'
+    fi
+  }
+
+  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    os_icon               # os identifier
+    dir                   # current directory
+    vcs                   # git status
+    ros_distro            # ROS 2 distro (custom)
+    ros_workspace         # ROS workspace (custom)
+    cmake_project         # CMake project (custom)
+    newline               # \n
+    prompt_char           # prompt symbol
+  )
+
+  typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    status                # exit code of the last command
+    command_execution_time  # duration of the last command
+    background_jobs       # presence of background jobs
+    virtualenv            # python virtual environment
+    nodejs                # node.js version
+    context               # current context
+  )
 ```
 
 ### `robot_arm_core` ROS package
