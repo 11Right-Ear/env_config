@@ -10,7 +10,8 @@ Configuration for the robot arm development environment.
 | `yazi/*.toml` | Yazi file browser — catppuccin theme, keybindings, git-aware listing |
 | `git/ignore` | Global gitignore — C++ build output, CMake, ROS, Python, credentials |
 | `git/attributes` | Global gitattributes — LF endings, `diff=cpp` for C/C++, `diff=python` |
-| `.zshrc` | zsh — oh-my-zsh, ROS sourcing, 300+ aliases and helper functions |
+| `.zshrc` | zsh — oh-my-zsh, **Powerlevel10k**, ROS sourcing, 300+ aliases and helper functions |
+| `.p10k.zsh` | Powerlevel10k prompt config, incl. custom ROS 2 / CMake segments |
 | `.clang-format` | LLVM style, C++17, 100 columns |
 | `.colcon_defaults` | colcon — symlink-install, 2 workers, console output |
 | `autostart/ibus-daemon.desktop` | Chinese input method (ibus) starts with GNOME |

@@ -3,7 +3,22 @@
 # ============================================================
 
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME="powerlevel10k"
+
+# ---- Powerlevel10k ----
+# Powerlevel10k lives in custom/themes/ and must be sourced BEFORE
+# oh-my-zsh.sh, because it sets up its own prompt (overriding ZSH_THEME).
+P10K_DIR="$ZSH/custom/themes/powerlevel10k"
+if [ -d "$P10K_DIR" ]; then
+    source "$P10K_DIR/powerlevel10k.zsh-theme"
+fi
+
+# Load the Powerlevel10k configuration (~/.p10k.zsh).
+# This line is required: without it p10k launches its interactive setup
+# wizard instead of applying the configuration.
+if [ -f "$HOME/.p10k.zsh" ]; then
+    source "$HOME/.p10k.zsh"
+fi
 
 # ---- Plugins ----
 plugins=(
