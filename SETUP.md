@@ -83,10 +83,13 @@ correctly in every terminal.
 │       └── ros2_controllers/
 ├── dotfiles/               # version-controlled configuration (git repo)
 │   ├── nvim/init.lua
-│   ├── yazi/*.toml
+│   ├── yazi/{yazi,keymap,theme}.toml
+│   ├── tabby/{config.yaml,launch_tabby.sh}
 │   ├── git/{ignore,attributes}
 │   ├── autostart/ibus-daemon.desktop
-│   ├── .zshrc, .clang-format, .colcon_defaults
+│   ├── scripts/{github_clone,gitclone_robust,push_env_config}.sh
+│   ├── .zshrc, .p10k.zsh, .clang-format, .colcon_defaults
+│   ├── SETUP.md            # canonical document
 │   └── restore.sh
 ├── .config/
 │   ├── nvim/init.lua
@@ -96,6 +99,8 @@ correctly in every terminal.
 │   └── autostart/ibus-daemon.desktop
 ├── .gitconfig              # global git config + aliases
 ├── .p10k.zsh               # Powerlevel10k configuration
+├── SETUP.md                # THE canonical document
+├── README.md -> SETUP.md   # convenience symlink
 ├── .clang-format
 ├── .colcon_defaults
 ├── .oh-my-zsh/
@@ -2465,6 +2470,23 @@ hotkeys:
     - 'Ctrl-Shift-V'
   clear:
     - 'Ctrl-Shift-K'
+```
+
+### Helper scripts — `~/dotfiles/scripts/`
+
+| Script | Purpose |
+|---|---|
+| `github_clone.sh` | Clone a GitHub repo, trying SSH → HTTPS → proxies → backoff. Needed because GitHub rate-limits anonymous git access. |
+| `gitclone_robust.sh` | The same retry logic as a reusable function for bulk cloning. |
+| `push_env_config.sh` | Create the `env_config` repository on GitHub and push the dotfiles. Requires `GH_TOKEN`. |
+
+```bash
+# Clone a repo reliably (SSH first, then fall back)
+bash ~/dotfiles/scripts/github_clone.sh folke/lazy-vim ~/somewhere/lazy-vim main
+
+# Create and push the env_config repository
+export GH_TOKEN=ghp_xxxxxxxxxxxx
+bash ~/dotfiles/scripts/push_env_config.sh
 ```
 
 ### `robot_arm_core` ROS package
