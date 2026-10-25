@@ -7,7 +7,10 @@ Configuration for the robot arm development environment.
 | Path | What it configures |
 |---|---|
 | `nvim/init.lua` | Neovim — C++/CMake/ROS setup, native LSP, treesitter, git, quickfix |
-| `yazi/*.toml` | Yazi file browser — catppuccin theme, keybindings, git-aware listing |
+| `yazi/theme.toml` | Yazi file browser — **Nord** theme (Yazi 0.4.2 format) |
+| `yazi/keymap.toml` | Yazi keybindings |
+| `yazi/yazi.toml` | Yazi main config |
+| `tabby/config.yaml` | Tabby terminal — **Nord** scheme, zsh profile, CJK font |
 | `git/ignore` | Global gitignore — C++ build output, CMake, ROS, Python, credentials |
 | `git/attributes` | Global gitattributes — LF endings, `diff=cpp` for C/C++, `diff=python` |
 | `.zshrc` | zsh — oh-my-zsh, **Powerlevel10k**, ROS sourcing, 300+ aliases and helper functions |
@@ -24,6 +27,17 @@ bash ~/dotfiles/restore.sh
 ```
 
 Then `exec zsh` to reload the shell.
+
+## Version-sensitive files
+
+Two config sets are **tied to a specific program version** and will silently
+stop working if you upgrade:
+
+| Program | Version | Notes |
+|---|---|---|
+| Yazi | **0.4.2** | `theme.toml` uses the 0.4.2 schema (`[manager]`, `[status]`, `[filetype]` with inline style tables). Yazi 25.x uses a completely different flat format, and its `[palettes.NAME]` mechanism does not exist in 0.4.2. |
+| Yazi | **0.4.2** | Config files must be named `yazi.toml`, `keymap.toml`, `theme.toml`. The 25.x names (`yazi-keymap.toml`, `yazi-theme.toml`) are ignored by 0.4.2. |
+| Tabby | 1.0.238 | `terminal.colorScheme` is a full colour object, not a scheme name string. |
 
 ## What is NOT here (and why)
 

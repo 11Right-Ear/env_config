@@ -1,0 +1,84 @@
+# ============================================================
+#  Tabby configuration — Nord Polar Night
+#
+#  Matches the Yazi theme so the whole desktop is consistent.
+#  Tabby 1.0.238 — user config at ~/.config/tabby/config.yaml
+#
+#  NOTE: `terminal.colorScheme` is a full object, not a name
+#  string. Tabby matches it against its built-in schemes by
+#  comparing the colours, so the object below must contain the
+#  exact Nord values for Tabby to recognise it as "Nord".
+# ============================================================
+
+# ---- General ----
+enableWelcomeTab: false
+enableAnalytics: false
+hideTray: false
+
+# ---- Terminal appearance ----
+terminal:
+  colorSchemeMode: 'dark'
+  # CJK-capable monospace font — required for Chinese text
+  font: 'Noto Sans Mono CJK SC'
+  fontSize: 12
+  lineHeight: 1.0
+  letterSpacing: 0
+  cursorBlink: false
+  scrollback: 10000
+  copyOnSelect: false
+  audibleBell: none
+  drawBoldTextInBrightColors: true
+  background: 'colorScheme'
+  # --- Nord Polar Night ---
+  colorScheme:
+    name: 'Nord'
+    foreground: '#d8dee9'
+    background: '#2e3440'
+    selectionBackground: '#434c5e'
+    cursor: '#d8dee9'
+    cursorAccent: '#2e3440'
+    colors:
+      - '#3b4252'   # 0  black
+      - '#bf616a'   # 1  red
+      - '#a3be8c'   # 2  green
+      - '#ebcb8b'   # 3  yellow
+      - '#81a1c1'   # 4  blue
+      - '#b48ead'   # 5  magenta
+      - '#88c0d0'   # 6  cyan
+      - '#e5e9f0'   # 7  white
+      - '#4c566a'   # 8  bright black
+      - '#bf616a'   # 9  bright red
+      - '#a3be8c'   # 10 bright green
+      - '#ebcb8b'   # 11 bright yellow
+      - '#81a1c1'   # 12 bright blue
+      - '#b48ead'   # 13 bright magenta
+      - '#8fbcbb'   # 14 bright cyan
+      - '#eceff4'   # 15 bright white
+
+# ---- Profiles ----
+defaultProfile: 'local'
+
+profiles:
+  - type: local
+    name: local
+    options:
+      shell: /bin/zsh
+      cwd: ~
+      colorScheme: Nord
+
+# ---- Hotkeys for C++ / ROS work ----
+hotkeys:
+  split-pane-right:
+    - 'Ctrl-Shift-D'
+  split-pane-down:
+    - 'Ctrl-Shift-E'
+  toggle-auxiliary-bar:
+    - 'Ctrl-Shift-B'
+  search:
+    - 'Ctrl-Shift-F'
+  copy:
+    - 'Ctrl-Shift-C'
+  paste:
+    - 'Ctrl-Shift-V'
+  clear:
+    - 'Ctrl-Shift-K'

@@ -21,10 +21,21 @@ if [ -f "$DOTFILES/nvim/init.lua" ]; then
 fi
 
 # ---- Yazi ----
+# NOTE: Yazi 0.4.2 expects these exact file names:
+#   yazi.toml, keymap.toml, theme.toml
+# (the yazi-keymap.toml / yazi-theme.toml names are Yazi 25.x and are
+#  silently ignored by 0.4.2)
 if [ -d "$DOTFILES/yazi" ]; then
     mkdir -p "$HOME_DIR/.config/yazi"
     cp "$DOTFILES/yazi/"*.toml "$HOME_DIR/.config/yazi/"
     echo "  ✓ yazi configs"
+fi
+
+# ---- Tabby terminal ----
+if [ -d "$DOTFILES/tabby" ]; then
+    mkdir -p "$HOME_DIR/.config/tabby"
+    cp "$DOTFILES/tabby/config.yaml" "$HOME_DIR/.config/tabby/config.yaml"
+    echo "  ✓ tabby config"
 fi
 
 # ---- Git ----

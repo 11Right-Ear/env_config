@@ -1,0 +1,250 @@
+# ============================================================
+#  Yazi theme — Nord Polar Night (dark)
+#
+#  Written for Yazi 0.4.2, whose theme schema is completely
+#  different from Yazi 25.x:
+#
+#    * 0.4.2 uses sections like [manager], [status], [filetype]
+#      with inline style tables — NOT the flat
+#      [main] / [file] / name = "..." form.
+#    * The [palettes.NAME] mechanism does not exist in 0.4.2.
+#    * Unknown keys make Yazi refuse to start, so every key below
+#      is taken from the official 0.4.2 preset.
+#
+#  Nord palette:
+#    Polar Night  #2e3440  #3b4252  #434c5e  #4c566a
+#    Snow Storm   #d8dee9  #e5e9f0  #eceff4
+#    Frost        #8fbcbb  #88c0d0  #81a1c1  #5e81ac
+#    Aurora       #bf616a (red)  #d08770 (orange)
+#                 #ebcb8b (yellow)  #a3be8c (green)
+#                 #b48ead (purple)
+# ============================================================
+
+"$schema" = "https://yazi-rs.github.io/schemas/theme.json"
+
+# : Flavor {{{
+
+[flavor]
+dark  = ""
+light = ""
+
+# : }}}
+
+# : Manager {{{
+
+[manager]
+cwd = { fg = "#88c0d0" }
+
+# Hovered
+hovered         = { reversed = true }
+preview_hovered = { underline = true }
+
+# Find
+find_keyword  = { fg = "#ebcb8b", bold = true, italic = true, underline = true }
+find_position = { fg = "#b48ead", bg = "reset", bold = true, italic = true }
+
+# Marker
+marker_copied   = { fg = "#a3be8c", bg = "#a3be8c" }
+marker_cut      = { fg = "#bf616a", bg = "#bf616a" }
+marker_marked   = { fg = "#88c0d0", bg = "#88c0d0" }
+marker_selected = { fg = "#ebcb8b", bg = "#ebcb8b" }
+
+# Tab
+tab_active   = { reversed = true }
+tab_inactive = {}
+tab_width    = 1
+
+# Count
+count_copied   = { fg = "#2e3440", bg = "#a3be8c" }
+count_cut      = { fg = "#2e3440", bg = "#bf616a" }
+count_selected = { fg = "#2e3440", bg = "#ebcb8b" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#4c566a" }
+
+# Syntect theme used for preview syntax highlighting.
+# Point this at a tmTheme file to get coloured code previews.
+syntect_theme = ""
+
+# : }}}
+
+# : Mode {{{
+
+[mode]
+normal_main = { fg = "#d8dee9" }
+normal_alt  = { fg = "#4c566a" }
+select_main = { fg = "#2e3440", bg = "#88c0d0" }
+select_alt  = { fg = "#2e3440", bg = "#5e81ac" }
+unset_main  = { fg = "#4c566a" }
+unset_alt   = { fg = "#434c5e" }
+
+# : }}}
+
+# : Status {{{
+
+[status]
+separator_open  = "▏"
+separator_close = "▕"
+
+progress_label  = { fg = "#d8dee9" }
+progress_normal = { fg = "#88c0d0" }
+progress_error  = { fg = "#bf616a" }
+
+perm_sep   = { fg = "#4c566a" }
+perm_type  = { fg = "#ebcb8b" }
+perm_read  = { fg = "#a3be8c" }
+perm_write = { fg = "#d08770" }
+perm_exec  = { fg = "#81a1c1" }
+
+# : }}}
+
+# : Input {{{
+
+[input]
+border   = { fg = "#88c0d0" }
+title    = { fg = "#88c0d0" }
+value    = { fg = "#d8dee9" }
+selected = { fg = "#2e3440", bg = "#88c0d0" }
+
+# : }}}
+
+# : Confirm {{{
+
+[confirm]
+border     = { fg = "#88c0d0" }
+title      = { fg = "#88c0d0" }
+content    = { fg = "#d8dee9" }
+list       = { fg = "#d8dee9" }
+btn_yes    = { fg = "#2e3440", bg = "#a3be8c" }
+btn_no     = { fg = "#2e3440", bg = "#bf616a" }
+btn_labels = [ "  [Y]es  ", "  (N)o  " ]
+
+# : }}}
+
+# : Pick {{{
+
+[pick]
+border  = { fg = "#88c0d0" }
+active  = { fg = "#2e3440", bg = "#88c0d0" }
+inactive = { fg = "#d8dee9" }
+
+# : }}}
+
+# : Completion {{{
+
+[completion]
+border       = { fg = "#88c0d0" }
+active       = { fg = "#2e3440", bg = "#88c0d0" }
+inactive     = { fg = "#d8dee9" }
+icon_file    = ""
+icon_folder  = ""
+icon_command = ""
+
+# : }}}
+
+# : Tasks {{{
+
+[tasks]
+border  = { fg = "#88c0d0" }
+title   = { fg = "#88c0d0" }
+hovered = { fg = "#b48ead", underline = true }
+
+# : }}}
+
+# : Which {{{
+
+[which]
+cols            = 3
+mask            = { fg = "#2e3440", bg = "#88c0d0" }
+cand            = { fg = "#88c0d0" }
+rest            = { fg = "#d8dee9" }
+desc            = { fg = "#d8dee9" }
+separator       = " "
+separator_style = { fg = "#4c566a" }
+
+# : }}}
+
+# : Help {{{
+
+[help]
+on      = { fg = "#88c0d0" }
+run     = { fg = "#b48ead" }
+desc    = { fg = "#d8dee9" }
+hovered = { fg = "#ebcb8b", underline = true }
+footer  = { fg = "#4c566a" }
+
+# : }}}
+
+# : Notify {{{
+
+[notify]
+title_info  = { fg = "#2e3440", bg = "#88c0d0" }
+title_warn  = { fg = "#2e3440", bg = "#ebcb8b" }
+title_error = { fg = "#2e3440", bg = "#bf616a" }
+icon_info   = ""
+icon_warn   = ""
+icon_error  = ""
+
+# : }}}
+
+# : Filetype {{{
+
+[filetype]
+
+rules = [
+	# Images
+	{ mime = "image/*", fg = "#ebcb8b" },
+
+	# Media
+	{ mime = "{audio,video}/*", fg = "#b48ead" },
+
+	# Archives
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#d08770" },
+
+	# Documents
+	{ mime = "application/{pdf,doc,rtf}", fg = "#88c0d0" },
+
+	# C / C++
+	{ name = "*.{c,cc,cpp,cxx,h,hh,hpp,hxx}", fg = "#81a1c1" },
+
+	# ROS 2
+	{ name = "*.{urdf,xacro,sdf}", fg = "#8fbcbb" },
+	{ name = "*.{launch,launch.py}", fg = "#8fbcbb" },
+	{ name = "*.{msg,srv,action}", fg = "#8fbcbb" },
+
+	# CMake
+	{ name = "CMakeLists.txt", fg = "#88c0d0" },
+	{ name = "*.cmake", fg = "#88c0d0" },
+
+	# Python
+	{ name = "*.py", fg = "#ebcb8b" },
+
+	# Shell
+	{ name = "*.{sh,bash,zsh,fish}", fg = "#a3be8c" },
+
+	# Config / data
+	{ name = "*.{json,yaml,yml,toml,xml}", fg = "#8fbcbb" },
+
+	# Markdown
+	{ name = "*.md", fg = "#d8dee9" },
+
+	# Special files
+	{ name = "*", is = "orphan", bg = "#bf616a" },
+	{ name = "*", is = "exec"  , fg = "#a3be8c" },
+
+	# Dummy files
+	{ name = "*", is = "dummy", bg = "#bf616a" },
+	{ name = "*/", is = "dummy", bg = "#bf616a" },
+
+	# Fallback
+	{ name = "*/", fg = "#88c0d0" }
+]
+
+# : }}}
+
+# : Icon {{{
+
+[icon]
+
+# : }}}
