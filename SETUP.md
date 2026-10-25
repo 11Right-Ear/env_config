@@ -23,9 +23,10 @@
 9. [Phase 7 — C++ template packages](#9-phase-7--c-template-packages)
 10. [Phase 8 — Chinese input (ibus + libpinyin)](#10-phase-8--chinese-input-ibus--libpinyin)
 11. [Phase 9 — Dotfiles repository](#11-phase-9--dotfiles-repository)
-12. [Final verification](#12-final-verification)
-13. [Known pitfalls](#13-known-pitfalls)
-14. [Appendix — file manifests](#14-appendix--file-manifests)
+12. [Tabby terminal (optional)](#12-tabby-terminal-optional)
+13. [Final verification](#13-final-verification)
+14. [Known pitfalls](#14-known-pitfalls)
+15. [Appendix — file manifests](#15-appendix--file-manifests)
 
 ---
 
@@ -87,7 +88,7 @@
 ## 2. Preflight — verify the machine
 
 Run this first. **Do not proceed** if the OS or glibc differ — see
-[Known pitfalls](#13-known-pitfalls).
+[Known pitfalls](#14-known-pitfalls).
 
 ```bash
 echo "=== OS ==="; lsb_release -d; lsb_release -cs
@@ -281,7 +282,7 @@ sudo ln -sf "$HOME/bin/nvim" /usr/local/bin/nvim
 
 ### Configuration
 
-`~/.config/nvim/init.lua` — see [Appendix](#14-appendix--file-manifests) for the
+`~/.config/nvim/init.lua` — see [Appendix](#15-appendix--file-manifests) for the
 full contents. It is **deliberately plugin-free** (uses only Neovim built-ins:
 native LSP, treesitter, quickfix, built-in git provider) so it works with no
 network access.
@@ -358,8 +359,20 @@ chmod +x ~/bin/yazi ~/bin/ya
 
 ### Configuration
 
-`~/.config/yazi/{yazi.toml,yazi-keymap.toml,yazi-theme.toml}` — see
-[Appendix](#14-appendix--file-manifests).
+Yazi 0.4.2 reads exactly three files from `~/.config/yazi/`:
+
+```
+yazi.toml       main config
+keymap.toml     keybindings
+theme.toml      colours
+```
+
+> ⚠️ **The names matter.** `yazi-keymap.toml` and `yazi-theme.toml` are
+> Yazi 25.x names and are **silently ignored** by 0.4.2 — you get an
+> unthemed file browser with no warning.
+
+See the [Appendix](#15-appendix--file-manifests) for the Nord theme and
+keymap contents.
 
 **Yazi 0.4.2 uses a different `[opener]` schema than newer versions:**
 
@@ -516,7 +529,7 @@ cp ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-classic.zsh ~/.p10k.zsh
 > API. The text is passed **pre-expanded** — `-t "$ROS_DISTRO"`, not
 > `-t '%{ROS_DISTRO}'` (which renders the literal string).
 
-See the `~/.p10k.zsh` entry in the [Appendix](#14-appendix--file-manifests)
+See the `~/.p10k.zsh` entry in the [Appendix](#15-appendix--file-manifests)
 for a ready-to-use configuration with ROS 2 and CMake segments.
 
 **Verify:**
@@ -530,7 +543,7 @@ Expect the segment list to include `ros_distro`, `ros_workspace` and
 
 ### `.zshrc`
 
-Full contents in the [Appendix](#14-appendix--file-manifests). It provides:
+Full contents in the [Appendix](#15-appendix--file-manifests). It provides:
 
 - ROS 2 auto-sourcing (`/opt/ros/humble/setup.zsh` and the workspace)
 - 300+ aliases: git (`st`, `lg`, `ap`, `big`), ROS (`colb`, `rosnodes`,
@@ -559,7 +572,7 @@ Expect ~306 aliases and **no** error output.
 
 ### Global `.gitconfig`
 
-Full contents in the [Appendix](#14-appendix--file-manifests). It sets:
+Full contents in the [Appendix](#15-appendix--file-manifests). It sets:
 
 - `user.name`, `user.email`
 - `init.defaultBranch = main`
@@ -662,7 +675,7 @@ kinematics solver** for a planar 3-DOF arm.
 
 Files: `package.xml`, `CMakeLists.txt`,
 `include/robot_arm_core/kinematics.hpp`, `src/kinematics.cpp`,
-`src/arm_node.cpp`. Full contents in the [Appendix](#14-appendix--file-manifests).
+`src/arm_node.cpp`. Full contents in the [Appendix](#15-appendix--file-manifests).
 
 **Two CMake details that break the build if wrong:**
 
@@ -723,7 +736,7 @@ Expected output (FK round-trip error ≈ 1e-14):
 ### Standalone CMake project — `robot_arm_planner`
 
 Location: `~/dev/cpp-projects/robot_arm_planner/`. Full contents in the
-[Appendix](#14-appendix--file-manifests).
+[Appendix](#15-appendix--file-manifests).
 
 Structure:
 
@@ -876,7 +889,72 @@ excluded because it holds the user's email).
 
 ---
 
-## 12. Final verification
+## 12. Tabby terminal (optional)
+
+Tabby is a modern terminal with split panes, SSH management and themes.
+It ships a built-in **Nord** scheme, which matches the Yazi theme.
+
+```bash
+# Download the .deb (x64)
+cd /tmp
+TABBY_VER="v1.0.238"
+for URL in \
+  "https://ghfast.top/https://github.com/Eugeny/tabby/releases/download/${TABBY_VER}/tabby-${TABBY_VER#v}-linux-x64.deb" \
+  "https://gh-proxy.com/https://github.com/Eugeny/tabby/releases/download/${TABBY_VER}/tabby-${TABBY_VER#v}-linux-x64.deb" ; do
+  if curl -fL --connect-timeout 15 --max-time 900 -o tabby.deb "$URL"; then break; fi
+done
+sudo dpkg -i tabby.deb
+```
+
+### Set it as the default terminal
+
+```bash
+gsettings set org.gnome.desktop.default-applications.terminal exec \
+  "/opt/Tabby/tabby --no-sandbox %U"
+
+sudo update-alternatives --install /usr/bin/x-terminal-emulator \
+  x-terminal-emulator /opt/Tabby/tabby 60
+sudo update-alternatives --set x-terminal-emulator /opt/Tabby/tabby
+```
+
+> **Note:** `org.gnome.desktop.terminal` does **not** exist unless
+> gnome-terminal is installed. Use
+> `org.gnome.desktop.default-applications.terminal` instead.
+
+### Configuration
+
+`~/.config/tabby/config.yaml` — see the
+[Appendix](#15-appendix--file-manifests) for the Nord configuration.
+
+Two Tabby specifics that are easy to get wrong:
+
+* `terminal.colorScheme` is a **full colour object**, not a scheme name
+  string. Tabby matches it against its built-in schemes by comparing the
+  colour values.
+* The file goes in `~/.config/tabby/config.yaml`, **not** `~/.tabby/`.
+
+### Launching on Wayland
+
+Tabby is an Electron (X11) app. On a Wayland session it must be started
+with the XWayland bridge, otherwise it fails with `Error: Bad window`:
+
+```bash
+cat > ~/.local/bin/launch-tabby <<'EOF'
+#!/usr/bin/env bash
+export DISPLAY=:0
+export XDG_SESSION_TYPE=x11
+export GDK_BACKEND=x11
+export ELECTRON_DISABLE_SANDBOX=1
+unset WAYLAND_DISPLAY
+exec /opt/Tabby/tabby --no-sandbox --disable-gpu --disable-dev-shm-usage \
+     --ozone-platform=x11
+EOF
+chmod +x ~/.local/bin/launch-tabby
+```
+
+---
+
+## 13. Final verification
 
 Run this after every phase. It should print all ✓.
 
@@ -923,7 +1001,7 @@ printf "  %-16s %s\n" "ssh key" "$([ -f ~/.ssh/id_ed25519 ] && echo ✓ || echo 
 
 ---
 
-## 13. Known pitfalls
+## 14. Known pitfalls
 
 ### P1 — GitHub anonymous git access returns 401
 
@@ -1033,14 +1111,51 @@ An empty list means the config file was never sourced.
 > with `zsh -i -c '...'` over a pipe can show an empty segment list even
 > when the config is fine. Test in a real terminal.
 
-### P13 — `tree-sitter-cli` not installable
+### P13 — Yazi 0.4.2 ignores your theme and keymap
+
+Yazi 0.4.2 looks for exactly three config files in `~/.config/yazi/`:
+
+```
+yazi.toml
+keymap.toml
+theme.toml
+```
+
+The names `yazi-keymap.toml` and `yazi-theme.toml` are **Yazi 25.x** and are
+**silently ignored** by 0.4.2 — no error, just an unthemed file browser.
+
+On top of that, the 0.4.2 theme schema differs completely from 25.x:
+
+* 25.x: flat sections like `[main]`, `[file]`, with `name = "bg"`
+* 0.4.2: sections like `[manager]`, `[status]`, `[filetype]`, with inline
+  style tables like `cwd = { fg = "#88c0d0" }`
+* the `[palettes.NAME]` mechanism exists only in 25.x
+
+Yazi refuses to start if the theme contains an unknown key, so copy the
+official preset and override only the colours:
+
+```bash
+# Fetch the 0.4.2 preset to use as a reference
+curl -fsL -o yazi.tgz \
+  "https://codeload.github.com/sxyazi/yazi/tar.gz/refs/tags/v0.4.2"
+tar xzf yazi.tgz
+less yazi-0.4.2/yazi-config/preset/theme-dark.toml
+```
+
+Verify the theme loads:
+
+```bash
+yazi --debug 2>&1 | head -10   # must not print "Failed to parse your theme.toml"
+```
+
+### P14 — `tree-sitter-cli` not installable
 
 Not in Ubuntu 22.04's archive. Skip it — the bundled Neovim treesitter
 parsers are enough.
 
 ---
 
-## 14. Appendix — file manifests
+## 15. Appendix — file manifests
 
 ### `~/.config/nvim/init.lua`
 
@@ -1380,7 +1495,7 @@ prepend_preview = [
 ]
 ```
 
-### `~/.config/yazi/yazi-keymap.toml`
+### `~/.config/yazi/keymap.toml`
 
 ```toml
 [manager]
@@ -1440,190 +1555,163 @@ Z = "quit --state"
 "?" = "help"
 ```
 
-### `~/.config/yazi/yazi-theme.toml`
+### `~/.config/yazi/theme.toml`
 
-Catppuccin Mocha. The palette **must** use the nested-table form —
-a multi-line inline table is rejected by TOML parsers:
+**Yazi 0.4.2 format — Nord Polar Night.**
+
+The 0.4.2 theme schema is completely different from Yazi 25.x:
+
+* sections are `[manager]`, `[mode]`, `[status]`, `[input]`, `[confirm]`,
+  `[pick]`, `[completion]`, `[tasks]`, `[which]`, `[help]`, `[notify]`,
+  `[filetype]` — **not** the flat `[main]` / `[file]` / `name = "..."` form
+* the `[palettes.NAME]` mechanism **does not exist** in 0.4.2
+* every style is an inline table: `fg = "#88c0d0"`, `bg = "#2e3440"`,
+  plus `bold`, `italic`, `underline`, `reversed`
+* a few fields are plain values, not styles: `btn_labels` is `[String; 2]`,
+  `cols` is an integer 1–3, `border_symbol` / `separator_open` are strings,
+  and the `icon_*` fields are strings
+
+Yazi refuses to start on an unknown key, so the key list must match the
+official 0.4.2 preset exactly.
 
 ```toml
-[main]
-name = "bg"
-[marker]
-name = "bg"
-[help]
-name = "bg"
-[keys]
-name = "special"
-[header]
-name = "blue"
-[status]
-name = "fg"
-[status_line]
-name = "fg"
-[status_empty]
-name = "bg"
-[status_border]
-name = "border"
-[scrollbar]
-name = "scrollbar"
-[scrollbar_thumb]
-name = "scrollbar_thumb"
-[preview]
-name = "preview"
-[preview_border]
-name = "preview_border"
-[preview_title]
-name = "blue"
-[list]
-name = "fg"
-[list_border]
-name = "border"
-[list_title]
-name = "blue"
-[list_hover]
-name = "bg"
-[list_hovered]
-name = "cyan"
-[directory]
-name = "blue"
-[file]
-name = "fg"
-[extension]
-name = "green"
-[symlink]
-name = "magenta"
-[orphan]
-name = "red"
-[executing]
-name = "orange"
-[search]
-name = "yellow"
-[copied]
-name = "green"
-[cursor]
-name = "cursor"
-[cursor_line]
-name = "cursor_line"
-[cursor_line_number]
-name = "cursor_line_number"
-[selected]
-name = "selected"
-[separator]
-name = "separator"
-[grid]
-name = "grid"
-[match]
-name = "orange"
-[tag]
-name = "special"
-[help_key]
-name = "cyan"
-[help_desc]
-name = "fg"
-[symlink_path]
-name = "magenta"
-[char]
-name = "char"
-[url]
-name = "url"
-[ip]
-name = "ip"
-[macro]
-name = "macro"
-[date]
-name = "date"
-[md]
-name = "md"
-[quote]
-name = "quote"
-[strong]
-name = "strong"
-[italic]
-name = "italic"
-[link]
-name = "link"
-[function]
-name = "function"
-[variable]
-name = "variable"
-[comment]
-name = "comment"
-[constant]
-name = "constant"
-[string]
-name = "string"
-[number]
-name = "number"
-[boolean]
-name = "boolean"
-[keyword]
-name = "keyword"
-[operator]
-name = "operator"
-[punctuation]
-name = "punctuation"
-[bracket]
-name = "bracket"
-[module]
-name = "module"
-[property]
-name = "property"
-[namespace]
-name = "namespace"
-[label]
-name = "label"
-[error]
-name = "error"
+"$schema" = "https://yazi-rs.github.io/schemas/theme.json"
 
-[palettes.catppuccin-mocha]
-bg = "#1e1e2e"
-fg = "#cdd6f4"
-muted = "#6c7086"
-red = "#f38ba8"
-green = "#a6e3a1"
-yellow = "#f9e2af"
-blue = "#89b4fa"
-magenta = "#f5c2e7"
-orange = "#fab387"
-cyan = "#94e2d5"
-special = "#f5c2e7"
-preview = "#181825"
-preview_border = "#313244"
-scrollbar = "#45475a"
-scrollbar_thumb = "#585b70"
-border = "#313244"
-grid = "#313244"
-cursor = "#f5e0dc"
-cursor_line = "#313244"
-cursor_line_number = "#f5e0dc"
-selected = "#f38ba8"
-separator = "#585b70"
-char = "#94e2d5"
-url = "#f38ba8"
-ip = "#94e2d5"
-macro = "#f5c2e7"
-date = "#fab387"
-md = "#f9e2af"
-quote = "#a6e3a1"
-strong = "#f38ba8"
-italic = "#f5c2e7"
-link = "#89b4fa"
-function = "#89b4fa"
-variable = "#eba0ac"
-comment = "#6c7086"
-constant = "#fab387"
-string = "#a6e3a1"
-number = "#fab387"
-boolean = "#fab387"
-keyword = "#cba6f7"
-operator = "#89d4dd"
-punctuation = "#89d4dd"
-bracket = "#94e2d5"
-module = "#f9e2af"
-property = "#eba0ac"
-namespace = "#89b4fa"
-label = "#f9e2af"
-error = "#f38ba8"
+[flavor]
+dark  = ""
+light = ""
+
+[manager]
+cwd = { fg = "#88c0d0" }
+
+hovered         = { reversed = true }
+preview_hovered = { underline = true }
+
+find_keyword  = { fg = "#ebcb8b", bold = true, italic = true, underline = true }
+find_position = { fg = "#b48ead", bg = "reset", bold = true, italic = true }
+
+marker_copied   = { fg = "#a3be8c", bg = "#a3be8c" }
+marker_cut      = { fg = "#bf616a", bg = "#bf616a" }
+marker_marked   = { fg = "#88c0d0", bg = "#88c0d0" }
+marker_selected = { fg = "#ebcb8b", bg = "#ebcb8b" }
+
+tab_active   = { reversed = true }
+tab_inactive = {}
+tab_width    = 1
+
+count_copied   = { fg = "#2e3440", bg = "#a3be8c" }
+count_cut      = { fg = "#2e3440", bg = "#bf616a" }
+count_selected = { fg = "#2e3440", bg = "#ebcb8b" }
+
+border_symbol = "│"
+border_style  = { fg = "#4c566a" }
+
+syntect_theme = ""
+
+[mode]
+normal_main = { fg = "#d8dee9" }
+normal_alt  = { fg = "#4c566a" }
+select_main = { fg = "#2e3440", bg = "#88c0d0" }
+select_alt  = { fg = "#2e3440", bg = "#5e81ac" }
+unset_main  = { fg = "#4c566a" }
+unset_alt   = { fg = "#434c5e" }
+
+[status]
+separator_open  = "▏"
+separator_close = "▕"
+
+progress_label  = { fg = "#d8dee9" }
+progress_normal = { fg = "#88c0d0" }
+progress_error  = { fg = "#bf616a" }
+
+perm_sep   = { fg = "#4c566a" }
+perm_type  = { fg = "#ebcb8b" }
+perm_read  = { fg = "#a3be8c" }
+perm_write = { fg = "#d08770" }
+perm_exec  = { fg = "#81a1c1" }
+
+[input]
+border   = { fg = "#88c0d0" }
+title    = { fg = "#88c0d0" }
+value    = { fg = "#d8dee9" }
+selected = { fg = "#2e3440", bg = "#88c0d0" }
+
+[confirm]
+border     = { fg = "#88c0d0" }
+title      = { fg = "#88c0d0" }
+content    = { fg = "#d8dee9" }
+list       = { fg = "#d8dee9" }
+btn_yes    = { fg = "#2e3440", bg = "#a3be8c" }
+btn_no     = { fg = "#2e3440", bg = "#bf616a" }
+btn_labels = [ "  [Y]es  ", "  (N)o  " ]
+
+[pick]
+border   = { fg = "#88c0d0" }
+active   = { fg = "#2e3440", bg = "#88c0d0" }
+inactive = { fg = "#d8dee9" }
+
+[completion]
+border       = { fg = "#88c0d0" }
+active       = { fg = "#2e3440", bg = "#88c0d0" }
+inactive     = { fg = "#d8dee9" }
+icon_file    = ""
+icon_folder  = ""
+icon_command = ""
+
+[tasks]
+border  = { fg = "#88c0d0" }
+title   = { fg = "#88c0d0" }
+hovered = { fg = "#b48ead", underline = true }
+
+[which]
+cols            = 3
+mask            = { fg = "#2e3440", bg = "#88c0d0" }
+cand            = { fg = "#88c0d0" }
+rest            = { fg = "#d8dee9" }
+desc            = { fg = "#d8dee9" }
+separator       = " "
+separator_style = { fg = "#4c566a" }
+
+[help]
+on      = { fg = "#88c0d0" }
+run     = { fg = "#b48ead" }
+desc    = { fg = "#d8dee9" }
+hovered = { fg = "#ebcb8b", underline = true }
+footer  = { fg = "#4c566a" }
+
+[notify]
+title_info  = { fg = "#2e3440", bg = "#88c0d0" }
+title_warn  = { fg = "#2e3440", bg = "#ebcb8b" }
+title_error = { fg = "#2e3440", bg = "#bf616a" }
+icon_info   = ""
+icon_warn   = ""
+icon_error  = ""
+
+[filetype]
+rules = [
+	{ mime = "image/*", fg = "#ebcb8b" },
+	{ mime = "{audio,video}/*", fg = "#b48ead" },
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#d08770" },
+	{ mime = "application/{pdf,doc,rtf}", fg = "#88c0d0" },
+
+	{ name = "*.{c,cc,cpp,cxx,h,hh,hpp,hxx}", fg = "#81a1c1" },
+	{ name = "*.{urdf,xacro,sdf}", fg = "#8fbcbb" },
+	{ name = "*.{launch,launch.py}", fg = "#8fbcbb" },
+	{ name = "*.{msg,srv,action}", fg = "#8fbcbb" },
+	{ name = "CMakeLists.txt", fg = "#88c0d0" },
+	{ name = "*.cmake", fg = "#88c0d0" },
+	{ name = "*.py", fg = "#ebcb8b" },
+	{ name = "*.{sh,bash,zsh,fish}", fg = "#a3be8c" },
+	{ name = "*.{json,yaml,yml,toml,xml}", fg = "#8fbcbb" },
+	{ name = "*.md", fg = "#d8dee9" },
+
+	{ name = "*", is = "orphan", bg = "#bf616a" },
+	{ name = "*", is = "exec"  , fg = "#a3be8c" },
+	{ name = "*", is = "dummy", bg = "#bf616a" },
+	{ name = "*/", is = "dummy", bg = "#bf616a" },
+
+	{ name = "*/", fg = "#88c0d0" }
+]
 ```
 
 ### `~/.gitconfig`
@@ -2161,6 +2249,80 @@ that is what makes them global. Names must be `prompt_<name>`.
   )
 ```
 
+### `~/.config/tabby/config.yaml`
+
+Nord scheme for Tabby 1.0.238.
+
+```yaml
+enableWelcomeTab: false
+enableAnalytics: false
+hideTray: false
+
+terminal:
+  colorSchemeMode: 'dark'
+  font: 'Noto Sans Mono CJK SC'
+  fontSize: 12
+  lineHeight: 1.0
+  letterSpacing: 0
+  cursorBlink: false
+  scrollback: 10000
+  copyOnSelect: false
+  audibleBell: none
+  drawBoldTextInBrightColors: true
+  background: 'colorScheme'
+  # NOTE: colorScheme is a full object, NOT a scheme name string.
+  colorScheme:
+    name: 'Nord'
+    foreground: '#d8dee9'
+    background: '#2e3440'
+    selectionBackground: '#434c5e'
+    cursor: '#d8dee9'
+    cursorAccent: '#2e3440'
+    colors:
+      - '#3b4252'   # 0  black
+      - '#bf616a'   # 1  red
+      - '#a3be8c'   # 2  green
+      - '#ebcb8b'   # 3  yellow
+      - '#81a1c1'   # 4  blue
+      - '#b48ead'   # 5  magenta
+      - '#88c0d0'   # 6  cyan
+      - '#e5e9f0'   # 7  white
+      - '#4c566a'   # 8  bright black
+      - '#bf616a'   # 9  bright red
+      - '#a3be8c'   # 10 bright green
+      - '#ebcb8b'   # 11 bright yellow
+      - '#81a1c1'   # 12 bright blue
+      - '#b48ead'   # 13 bright magenta
+      - '#8fbcbb'   # 14 bright cyan
+      - '#eceff4'   # 15 bright white
+
+defaultProfile: 'local'
+
+profiles:
+  - type: local
+    name: local
+    options:
+      shell: /bin/zsh
+      cwd: ~
+      colorScheme: Nord
+
+hotkeys:
+  split-pane-right:
+    - 'Ctrl-Shift-D'
+  split-pane-down:
+    - 'Ctrl-Shift-E'
+  toggle-auxiliary-bar:
+    - 'Ctrl-Shift-B'
+  search:
+    - 'Ctrl-Shift-F'
+  copy:
+    - 'Ctrl-Shift-C'
+  paste:
+    - 'Ctrl-Shift-V'
+  clear:
+    - 'Ctrl-Shift-K'
+```
+
 ### `robot_arm_core` ROS package
 
 **`package.xml`**
@@ -2620,7 +2782,7 @@ If you are an AI agent asked to set up this environment:
    for the whole session (e.g. `echo "<password>" | sudo -S -p "" <cmd>`).
 8. **Leave the SSH key for the user to register on GitHub** — you cannot do
    that part.
-9. Run the [Final verification](#12-final-verification) block and report the
+9. Run the [Final verification](#13-final-verification) block and report the
    result honestly, including any ✗.
 
 ---
